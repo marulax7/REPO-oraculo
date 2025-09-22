@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oráculo del Laberinto</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: white;
+      color: black;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Bookman Old Style', serif;
+      text-align: center;
+    }
+
+    button {
+      display: block;
+      margin: 40px auto 0;
+      background-color: #FFEC8B;
+      padding: 12px 24px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      color: #333;
+      cursor: pointer;
+    }
+
+    #outputEl {
+      margin: 2em auto 0.7em;
+      padding: 0.5em;
+      max-width: 700px;
+      font-size: calc(1em + 1pt);
+      font-style: italic;
+      line-height: 1.5;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    #emojiEl {
+      text-align: center;
+      margin-top: 0.7em;
+      font-size: 1.4em;
+    }
+
+    img {
+      max-width: 80%;
+      height: auto;
+    }
+
+    .main-img {
+      max-width: 250px;
+      margin-top: 40px;
+    }
+
+    .small-img {
+      max-width: 80px;
+      margin-top: 20px;
+    }
+
+    p.signature {
+      color: #280137;
+      font-size: calc(1em - 2.5pt);
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>oráculo del laberinto</h1>
+  <button id="consultBtn" onclick="showResult()">consultar</button>
+  <p id="outputEl"></p>
+  <p id="emojiEl"></p>
+
+  <div>
+    <img src="imagenes/1.jpg" alt="El Oráculo del Laberinto" class="main-img">
+    <br>
+    <img src="imagenes/2.png" alt="El Oráculo del Laberinto" class="small-img">
+    <p class="signature">@oraculolaberinto</p>
+  </div>
+
+  <script>
+    function formatOracleString(s) {
+      let i = 0;
+      let result = [];
+      let regex = /\((space|in bold|crossed|crossed out|smaller|underlined|normal|italics)\)/gi; 
+      let match;
+      let lastIndex = 0;
+      
+      while ((match = regex.exec(s)) !== null) {
+        result.push(s.substring(lastIndex, match.index));
+        let instruction = match[1].toLowerCase(); 
+        lastIndex = regex.lastIndex;
+        
+        switch (instruction) {
+          case "space":
+            result.push("<br>");
+            break;
+          case "in bold":
+            let wordMatch = s.substring(lastIndex).match(/^\s*(\S+)/);
+            if (wordMatch) {
+              result.push("<strong>" + wordMatch[1] + "</strong>");
+              lastIndex += wordMatch[0].length;
+            }
+            break;
+          case "smaller":
+            let wordMatch2 = s.substring(lastIndex).match(/^\s*(\S+)/);
+            if (wordMatch2) {
+              result.push("<span style=\"font-size: calc(1em - 2pt)\">" + wordMatch2[1] + "</span>");
+              lastIndex += wordMatch2[0].length;
+            }
+            break;
+          case "underlined":
+            let wordMatch3 = s.substring(lastIndex).match(/^\s*(\S+)/);
+            if (wordMatch3) {
+              result.push("<u>" + wordMatch3[1] + "</u>");
+              lastIndex += wordMatch3[0].length;
+            }
+            break;
+          case "crossed":
+          case "crossed out":
+            let wordMatch4 = s.substring(lastIndex).match(/^\s*(\S+)/);
+            if (wordMatch4) {
+              result.push("<del>" + wordMatch4[1] + "</del>");
+              lastIndex += wordMatch4[0].length;
+            }
+            break;
+          case "normal":
+            let wordMatch5 = s.substring(lastIndex).match(/^\s*(\S+)/);
+            if (wordMatch5) {
+              result.push("<span style=\"font-style:normal\">" + wordMatch5[1] + "</span>");
+              lastIndex += wordMatch5[0].length;
+            }
+            break;
+          case "italics": 
+            let wordMatch6 = s.substring(lastIndex).match(/^\s*(\S+)/);
+            if (wordMatch6) {
+              result.push("<em>" + wordMatch6[1] + "</em>");
+              lastIndex += wordMatch6[0].length;
+            }
+            break;
+        }
+      }
+      
+      result.push(s.substring(lastIndex));
+      return result.join("");
+    }
+
+    let rawStrings = ["<span style='font-style: normal;'>Sable estricto sube <u> básico </u></span> (space) (italics) luna incierta muere (smaller) minúscula.",
+    "Cuida tu <mark>cadencia novedosa</mark>",
+    "El silencio a viva voz",
+    "En el maleficio se encuentra la llave. (space) Susurra lobuna canción.",
+    "Busca un cinturón amarillo en medio del caos.",
+    "Se entiende en el borde del abismo (space) (space) lo que te planteamos.",
+    "Colosal espéculo oscurece. (space) Enturbia en dos partes.",
+    "Cicatrices de sal lobuna.",
+    "Meta: salir de la prisión sosiego.",
+    "Roe nieve. Se cae la llama.",
+    "Solo la llanura se compartirá.",
+    "Si miras el cadáver, encontrarás la llave. Como si lo abrieras (space) lentamente.",
+    "Olvidar la necesidad fina de saber volar, (space) excepto que quieras volver a nadar incauta.",
+    "Solo sucede la clave arpegiada perfectamente (space) en tu cumbre soleada.",
+    "Escucha la clave (smaller) escondida sobre la mesa.",
+    "Voz-clavícula sostenida estéticamente. (space) La cara rareza de tu vientre en luz.",
+    "Vomita (crossed out) claveles (crossed out) muertos (crossed out) sórdidos.",
+    "Capricho inestable el tuyo y el sol.",
+    "Repta la luna, no sabe de versos.",
+    "Puerta, sal, <s>claves</s>, <s>sesgos</s>. (space) Solo una. Solo tu calor cae.",
+    "Recta neptuna. Si la lees mejor: un (space) c (space) a (space) o (space) s",
+    "Mantén el arco flotando inmenso solo.",
+    "Mandíbula de lobo. (space) Rompe siluetas, como sabes hacer.",
+    "Verte: la llave. (space) Casi sos canto solar",
+    "Colorea los cactus. Caldo de hierbas salvajes.",
+    "Contornea la <span style='display:inline-block; text-align:center; line-height:1; font-size:0.9em;'>silla<br><span style='border-top:1px solid; display:block;'>arcilla</span></span>, no te dejes sepultar.",
+    "Mira la casa. Nunca la caldera.",
+    "B o s t e z a r (space) al cumplir el desafíoveloz.",
+    "Cúspide neutra: la palabra nace.",
+    "La calma ensordecerá a los planetas que quieren comprarte.",
+    "La nada y la calma y la aurora. Todo junto.",
+    "No te caigas en el velorio de la suerte cargada en la cola de espera.",
+    "Soltá la bandera perdida. (space) La audacia elevada te tiene tomada.",
+    "Considera esto: no soportar dormir. (space) El atributo debe crear refugio.",
+    "Apocalipsis verde mar",
+    "Es un escombro espectacular. (space) Símbolo del agua: Gratis.",
+    "Una primavera elegante. Hija de crepúsculos nuevos.",
+    "Una marea semiótica te arrastra. (space) Bienvenida la aurora. Una bienvenida eterna.",
+    "Enfrente tenés el marco. <span style='color: purple'>Pinta la pared violeta.</span>",
+    "Astutx deja tu marca. Una pintura gigante ecuestre.",
+    "Soltando temores en eje, (space) se encuentra tu canto profundo, (space) mi amor.",
+    "Encontrá la flor quieta. Solo vos. Solo tuya.",
+    "Una norma gigantesca revolotea gritando (space) SOLTAME",
+    "Mientras no vengas nadie va a ganar nunca.",
+    "Una nube resta cientos de veces, (space) pero cuando escuches al mar vas a entender las cosas.",
+    "A ver una <u>canoa</u> en la losa caída.",
+    "Cuando busques ayuda, respirá mientras tarde la sombra. (space) Una única vuelta contra corriente.",
+    "Volvé a la luna (space) la verdad reconoce una balada dormida.",
+    "Dentro de la montaña se encontrará la llave (space) del planeta-universo.",
+    "<span style='color: darkblue'>Penas crujen orquestando flores de mar</span>",
+    "Macetas serpenteando en la cúpula soleada (space) inversa al plan maligno.",
+    "Vas a entender y serás (space) <span style='font-style: normal;'> sable sensible súbito irreemplazable siempre. </span>",
+    "El sabor que se desprende de esta calcomanía imperfecta (space) es todo lo que vos necesitás.",
+    "La (in bold) reveladora situación en la que estás (space) no te deja ver la calma.",
+    "Menospreciando la aurora no conseguirás calmarte.",
+    "una sola llave púrpura, (space) cuida tu cadencia novedosa.",
+    "Se entreteje la velada estando atenta.",
+    "Pido decencia pura. Y no anotar remedios secos.",
+    "Se alumbra lo que no se convoca. Se usa lo que no se ve. (space) Linda solución.",
+    "Ni en el campo ni en la ciudad ahora. (space) <b>|</b>No se actúa con clase en la jaula<b>|</b>",
+    "Si encauzas la sombra en un paso firme, (space) entonces te invito a bailar la samba.",
+    "Busca el sentido. Dibuja una nave en cada renglón.",
+    "Recibo amor, recibo espinas. (space) Todo me sirve para lo mismo.",
+    "No se va a terminar nada de lo que pensás que sos.",
+    "Si dejas de intentar virar en el cielo de acero, (space) podrás ver las manchas verdes.",
+    "¿Cómo saber si sos vos o el ladrido?",
+    "Entibia la propuesta. (space) Entabla el saludo humano espectacular.",
+    "Báñate noble, el carruaje te espera. (space) Móntate en la clave laurel.",
+    "Rompemos edificios con solo mirar. (space) Mientras subas nada puede tapar la luz.",
+    "Nos vemos en el alba donde nadie te esperó, (space) pero todos te buscan.",
+    "Tristeza marchita. Un banco de nieve.",
+    "Se nombra la clave, específicamente ingenua, (space) Increíblemente hermosa.",
+    "Armemos al cambio. (space) Oleaje sideral vasto.",
+    "<span style='color: #efb810'>&#9733</span>Una cláusula reluciente<span style='color: #efb810'>&#9733</span> (space) combate cientos de enigmas misteriosos.",
+    "Vos no busques alrededor de los yuyos (space) que caen en la fuente.",
+    "Sé que no resolverás el movimiento perplejo de cada instante.",
+    "Sabemos el cambio de las flores densas y jugosas. (space) Todo se cae en pie.",
+    "¡Ágil esconde las ventanas!",
+    "La audaz jungla navega cientos de cables.",
+    "Casi la corbata te penetra lenta con la convicción de seguir moviéndote (space) sol@",
+    "Las siglas del ancla, sumergidas de nuevo. (space) Todo sucede una vez.",
+    "<span style='color: yellow'>Coordenadas secretas de un resplandor.</span>"
+  ]; 
+    let results = rawStrings.map(formatOracleString);
+
+    let emojis = ["🗝️","🎼","🚪","🍀","🏁","🌸","🛶","⛈️","🗻","🌹","⚔️","🤺","🌵","🪑","🏠","🏰","🎢","🌬️","☕️","🔦",
+    "⛲","🏙️","❄️","🌊","⚓","👔","🕵️‍♀️","⛵","🎁","👑","🎲","💢","💋","🥀","🛩️","🌅","💫","💧","💐","🖼️",
+    "🎠","🐎","🌪️","🚩","🕸️","🐉","♟️","🃏","🕺","💎","🐺","🔍","🔥","👁️","🌑","🧜","🪐","🔬","🌠","🌋","🧪",
+    "🤸","⚡","🧭","✏️","🎨","🥋","🎩","🦋","⏳","🖤","👂","🌞","🌻","🏹","🪁","🏄‍♀️","🧩"];
+
+    function showResult() {
+      if (typeof showResult.lastPhraseIndex === 'undefined') {
+        showResult.lastPhraseIndex = -1;
+      }
+      
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * results.length);
+      } while (randomIndex === showResult.lastPhraseIndex && results.length > 1);
+      
+      showResult.lastPhraseIndex = randomIndex;
+      outputEl.innerHTML = results[randomIndex];
+      
+      if (typeof showResult.lastEmojiIndex === 'undefined') {
+        showResult.lastEmojiIndex = -1;
+      }
+      
+      let randomEmojiIndex;
+      do {
+        randomEmojiIndex = Math.floor(Math.random() * emojis.length);
+      } while (randomEmojiIndex === showResult.lastEmojiIndex && emojis.length > 1);
+      
+      showResult.lastEmojiIndex = randomEmojiIndex;
+      emojiEl.innerHTML = emojis[randomEmojiIndex];
+    }
+  </script>
+</body>
+</html>
